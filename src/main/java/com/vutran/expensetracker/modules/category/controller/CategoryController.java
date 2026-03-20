@@ -19,13 +19,13 @@ public class CategoryController {
 
     @GetMapping
 public ResponseEntity<List<CategoryResponse>> getAll() {
-    // Trả về 200 OK kèm danh sách Category
+    // Returns 200 OK along with a list of Categories
     return ResponseEntity.ok(categoryService.getCategoriesByUser());
 }
 
     @PostMapping
     public ResponseEntity<CategoryResponse> create(@RequestBody CategoryRequest request) {
-        // Hàm này sẽ gọi service để lưu Category gắn liền với User đang đăng nhập
+        // This function will call a service to save the Category associated with the currently logged-in User.
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(request));
     }
 }

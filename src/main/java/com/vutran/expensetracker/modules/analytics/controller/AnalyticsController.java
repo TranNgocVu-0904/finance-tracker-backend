@@ -20,7 +20,7 @@ public class AnalyticsController {
     public ResponseEntity<AnalyticsResponse> getDashboard() {
         return ResponseEntity.ok(analyticsService.getDashboardData());
     }
-    // THÊM API NÀY VÀO TRONG ANALYTICS CONTROLLER
+
     @GetMapping("/monthly")
     public ResponseEntity<AnalyticsResponse> getMonthlyDashboard(
             @RequestParam int year,

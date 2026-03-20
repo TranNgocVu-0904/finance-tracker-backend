@@ -7,5 +7,5 @@ import java.util.UUID;
 public class CategoryRequest {
     private String name;
     private String type;
-    private UUID userId; // ID của người chủ sở hữu danh mục này
+    private UUID userId; // ID of the owner of this category
 }

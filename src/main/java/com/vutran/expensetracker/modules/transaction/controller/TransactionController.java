@@ -19,22 +19,23 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
-    // API: Thêm mới một giao dịch
+    // Endpoint to create and persist a new transaction record
     @PostMapping
     public ResponseEntity<TransactionResponse> create(@Valid @RequestBody TransactionRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(transactionService.createTransaction(request));
     }
 
-    // API: Lấy danh sách toàn bộ giao dịch của User đang đăng nhập
+    // Retrieves all transactions associated with the currently authenticated user
     @GetMapping
     public ResponseEntity<List<TransactionResponse>> getAll() {
         return ResponseEntity.ok(transactionService.getAllTransactionsByUser());
     }
 
+    // Deletes a specific transaction by its unique identifier
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         transactionService.deleteTransaction(id);
-        // Trả về 204 No Content vì xóa xong thì không còn gì để hiển thị
+        // Returns a 204 No Content status upon successful deletion
         return ResponseEntity.noContent().build(); 
     }
 }

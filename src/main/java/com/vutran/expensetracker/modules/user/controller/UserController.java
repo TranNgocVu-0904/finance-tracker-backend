@@ -1,11 +1,10 @@
 package com.vutran.expensetracker.modules.user.controller;
 
 import com.vutran.expensetracker.modules.user.dto.AuthResponse; 
-
 import com.vutran.expensetracker.modules.user.dto.UserRegisterRequest;
 import com.vutran.expensetracker.modules.user.dto.UserResponse;
 import com.vutran.expensetracker.modules.user.dto.ResetPasswordRequest;
-import com.vutran.expensetracker.modules.user.dto.UserUpdateRequest; // Nhớ import DTO mới
+import com.vutran.expensetracker.modules.user.dto.UserUpdateRequest;
 import com.vutran.expensetracker.modules.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 @RequiredArgsConstructor
 public class UserController {
 
-    // 1. Spring sẽ tự tìm SPRING_MAIL_PASSWORD trong System Properties (mà Dotenv đã nạp)
+    // Inject the mail password from environment variables or system properties
     @Value("${SPRING_MAIL_PASSWORD:NOT_FOUND}") 
     private String mailPassword;
 
@@ -34,7 +33,8 @@ public class UserController {
             UserResponse response = userService.registerUser(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
-            // Bắt lỗi (ví dụ: "Email này đã được sử dụng!") và gửi về cho JavaScript
+            
+            // Handle exceptions and return a structured JSON error response
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
@@ -51,6 +51,8 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getCurrentUser() {
+
+        // Extract the authenticated user's email from the security context
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentEmail = authentication.getName(); 
         
@@ -58,14 +60,15 @@ public class UserController {
         return ResponseEntity.ok(userInfo);
     }
 
-    // API MỚI: NHẬN REQUEST CẬP NHẬT TỪ FRONTEND
+    // Endpoint to update the current user's profile information
     @PutMapping("/update")
     public ResponseEntity<UserResponse> updateProfile(@RequestBody UserUpdateRequest request) {
-        // Lấy email người dùng hiện tại từ Token
+
+        // Retrieve the email of the currently authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentEmail = authentication.getName();
         
-        // Gọi Service xử lý
+        // Delegate the update operation to the user service
         UserResponse updatedUser = userService.updateUserProfile(currentEmail, request);
         
         return ResponseEntity.ok(updatedUser);
@@ -79,44 +82,42 @@ public class UserController {
             
             userService.changePassword(currentEmail, request);
             
-            // Trả về JSON thông báo thành công
-            return ResponseEntity.ok(Map.of("message", "Đổi mật khẩu thành công!"));
+            // Return a success message upon password modification
+            return ResponseEntity.ok(Map.of("message", "Password has been successfully changed."));
         } catch (Exception e) {
-            // Trả về JSON báo lỗi
+            // Return an error message if validation or authentication fails
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
-  
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
         
-        // 2. Kiểm tra biến đã được "tiêm" vào chưa
-        System.out.println("DEBUG: Mật khẩu lấy qua @Value là: " + mailPassword);
+        // Debugging: Verify successful injection of the environment variable
+        System.out.println("DEBUG: Injected mail password value is: " + mailPassword);
         
         try {
             String email = request.get("email");
-            System.out.println("Processing forgot password for: " + email); 
+            System.out.println("Processing password recovery request for: " + email); 
             
             userService.processForgotPassword(email);
             
-            return ResponseEntity.ok(Map.of("message", "If your email address exists, a recovery link has been sent."));
+            return ResponseEntity.ok(Map.of("message", "If your email address exists in our system, a recovery link has been sent."));
         } catch (Exception e) {
             e.printStackTrace(); 
-            return ResponseEntity.status(500).body(Map.of("message", "Error: " + e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Map.of("message", "Internal Server Error: " + e.getMessage()));
         }
     }
 
-    // 2. API THỰC HIỆN ĐỔI MẬT KHẨU: Nhận Token và mật khẩu mới từ Frontend
+    // Endpoint to execute the password reset using the provided token and new credentials
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
         try {
             userService.updatePasswordWithToken(request.getToken(), request.getNewPassword());
-            return ResponseEntity.ok(Map.of("message", "Your password has been successfully updated!"));
+            return ResponseEntity.ok(Map.of("message", "Your password has been successfully updated."));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
-
 }
-

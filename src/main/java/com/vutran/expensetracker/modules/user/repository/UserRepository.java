@@ -9,11 +9,12 @@ import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
-    // Phục vụ cho Đăng nhập (Lấy thông tin User ra để kiểm tra mật khẩu)
+    
+    // For Login (Retrieves User information to check password)
     Optional<User> findByEmail(String email);
 
-    // THÊM DÒNG NÀY: Phục vụ cho Đăng ký (Chỉ kiểm tra xem email đã bị trùng chưa)
-    boolean existsByEmail(String email); 
+    // For Registration (Checks if the email address is already taken)
+    boolean existsByEmail(String email);
 
     Optional<User> findByResetToken(String token);
 }

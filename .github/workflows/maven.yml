@@ -1,0 +1,47 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    # Required permissions to push the generated badges back to the repository
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4 # Upgraded to v4 for better performance
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Execute tests and generate JaCoCo report
+      run: ./mvnw clean test
+
+    - name: Generate Code Coverage Badge
+      id: jacoco
+      uses: cicirello/jacoco-badge-generator@v2
+      with:
+        generate-branches-badge: true
+        jacoco-csv-file: target/site/jacoco/jacoco.csv
+
+    - name: Commit and push coverage badges
+      if: github.event_name == 'push'
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+        # Create directory if it doesn't exist to avoid errors
+        mkdir -p .github/badges
+        git add .github/badges/jacoco.svg .github/badges/branches.svg
+        git commit -m "docs: auto-update code coverage badges [skip ci]" || echo "No changes to commit"
+        git push

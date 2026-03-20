@@ -18,6 +18,6 @@ public class TransactionResponse {
     private BigDecimal amount;
     private String description;
     private LocalDate transactionDate;
-    private String categoryName; // Trả về tên Category cho FE dễ hiển thị (vd: "Ăn uống")
-    private String categoryType; // Trả về loại (INCOME / EXPENSE)
+    private String categoryName; // Returns the Category name for display (e.g., "Food and Drink")
+    private String categoryType; // Returns the type (INCOME / EXPENSE)
 }

@@ -16,14 +16,14 @@ import org.springframework.stereotype.Service;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository; // Tiêm UserRepository để đi tìm User
+    private final UserRepository userRepository;
 
     public CategoryResponse createCategory(CategoryRequest request) {
         String currentUserEmail = org.springframework.security.core.context.SecurityContextHolder
                 .getContext().getAuthentication().getName();
 
         User user = userRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> new RuntimeException("User không tồn tại!"));
+                .orElseThrow(() -> new RuntimeException("User not found!"));
 
         Category category = Category.builder()
                 .name(request.getName())
@@ -31,7 +31,6 @@ public class CategoryService {
                 .user(user)
                 .build();
 
-        // PHẦN BỔ SUNG:
         Category saved = categoryRepository.save(category);
         
         return CategoryResponse.builder()
@@ -47,7 +46,7 @@ public List<CategoryResponse> getCategoriesByUser() {
             .getAuthentication().getName();
 
     return categoryRepository.findByUserEmail(email).stream()
-            .map(category -> CategoryResponse.builder() // Dùng builder cho đồng nhất
+            .map(category -> CategoryResponse.builder()
                     .id(category.getId())
                     .name(category.getName())
                     .type(category.getType())

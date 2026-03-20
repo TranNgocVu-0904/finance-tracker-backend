@@ -15,7 +15,7 @@ import java.util.UUID;
 public class UserProfile {
 
     @Id
-    private UUID id; // Sẽ dùng chung ID với User
+    private UUID id; // Use the same ID as User
 
     @Column(name = "first_name", length = 50)
     private String firstName;
@@ -30,7 +30,7 @@ public class UserProfile {
     private String bio;
 
     @OneToOne
-    @MapsId // Đưa ID của User vào làm ID của Profile luôn
+    @MapsId // Use the User ID as the Profile ID
     @JoinColumn(name = "user_id")
     private User user;
 }

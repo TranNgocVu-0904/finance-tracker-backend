@@ -16,19 +16,20 @@ public class AnalyticsService {
 
     private final TransactionRepository transactionRepository;
 
+    // RETRIEVE AGGREGATED DASHBOARD METRICS
     public AnalyticsResponse getDashboardData() {
-        // 1. Lấy email của người dùng đang đăng nhập
+        // 1. Extract the authenticated user's email from the security context
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // 2. Nhờ Database tính Tổng Thu và Tổng Chi
+        // 2. Query the database to aggregate Total Income and Total Expense
         BigDecimal totalIncome = transactionRepository.sumAmountByUserEmailAndCategoryType(email, "INCOME");
         BigDecimal totalExpense = transactionRepository.sumAmountByUserEmailAndCategoryType(email, "EXPENSE");
 
-        // 3. Tính Số dư (Balance = Income - Expense)
-        // Lưu ý: Với BigDecimal, bạn phải dùng hàm .subtract() chứ không dùng dấu trừ (-) bình thường được
+        // 3. Calculate the Net Balance (Income - Expense)
+        // NOTE: Utilizing the .subtract() method is mandatory to maintain precision in BigDecimal arithmetic operations
         BigDecimal balance = totalIncome.subtract(totalExpense);
 
-        // 4. Đóng gói vào DTO và trả về
+        // 4. Encapsulate the aggregated data into a Data Transfer Object (DTO) for the client response
         return AnalyticsResponse.builder()
                 .totalIncome(totalIncome)
                 .totalExpense(totalExpense)
@@ -36,22 +37,24 @@ public class AnalyticsService {
                 .build();
     }
 
-
-
-    // THÊM HÀM NÀY VÀO TRONG ANALYTICS SERVICE
+    // RETRIEVE MONTHLY ANALYTICS DASHBOARD DATA
     public AnalyticsResponse getMonthlyDashboard(int year, int month) {
+        // Extract the authenticated user's email
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // Tính ngày đầu tháng và ngày cuối tháng
+        // Calculate the chronological boundaries (start and end dates) for the specified month
         YearMonth yearMonth = YearMonth.of(year, month);
-        LocalDate startDate = yearMonth.atDay(1); // Ngày 1 của tháng
-        LocalDate endDate = yearMonth.atEndOfMonth(); // Ngày cuối cùng của tháng (28, 29, 30 hoặc 31)
+        LocalDate startDate = yearMonth.atDay(1); // First day of the specified month
+        LocalDate endDate = yearMonth.atEndOfMonth(); // Last day of the month, inherently accounting for leap years and varying lengths
 
-        // Gọi DB tính toán trong khoảng thời gian này
+        // Execute database aggregations within the calculated date range
         BigDecimal totalIncome = transactionRepository.sumAmountByDateRange(email, "INCOME", startDate, endDate);
         BigDecimal totalExpense = transactionRepository.sumAmountByDateRange(email, "EXPENSE", startDate, endDate);
+        
+        // Compute the net balance
         BigDecimal balance = totalIncome.subtract(totalExpense);
 
+        // Encapsulate and return the mapped DTO
         return AnalyticsResponse.builder()
                 .totalIncome(totalIncome)
                 .totalExpense(totalExpense)

@@ -1,4 +1,3 @@
-// File: src/main/java/com/vutran/expensetracker/modules/user/entity/User.java
 package com.vutran.expensetracker.modules.user.entity;
 
 import jakarta.persistence.*;
@@ -34,13 +33,12 @@ public class User {
     @Column(name = "reset_token_expiry")
     private LocalDateTime resetTokenExpiry;
 
-    // Các trường cũ
     private String name; 
 
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @PrimaryKeyJoinColumn
-    private UserProfile profile; // Mối quan hệ tới bảng Profile
+    private UserProfile profile; // Relationship to Profile table
     
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

@@ -14,12 +14,14 @@ import java.util.UUID;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
     
-    // Tìm tất cả giao dịch của 1 user (thông qua email) và sắp xếp ngày giảm dần (mới nhất lên đầu)
+    // Retrieves all transactions associated with a specific user email, ordered by transaction date in descending order (most recent first)
     List<Transaction> findByUserEmailOrderByTransactionDateDesc(String email);
-    // COALESCE(..., 0) giúp trả về số 0 nếu bạn chưa có giao dịch nào (tránh lỗi NullPointerException)
+
+    // Utilizes the COALESCE function to return zero in the absence of transaction records, effectively preventing NullPointerException during aggregation
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t JOIN t.category c WHERE t.user.email = :email AND c.type = :type")
     BigDecimal sumAmountByUserEmailAndCategoryType(@Param("email") String email, @Param("type") String type);
-    // THÊM HÀM NÀY VÀO DƯỚI CÙNG TRONG TRANSACTION REPOSITORY
+
+    // Calculates the total transaction amount for a specific user and category type within a defined chronological date range
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t JOIN t.category c " +
            "WHERE t.user.email = :email AND c.type = :type " +
            "AND t.transactionDate >= :startDate AND t.transactionDate <= :endDate")

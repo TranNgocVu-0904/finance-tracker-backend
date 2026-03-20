@@ -10,7 +10,6 @@ import com.vutran.expensetracker.modules.user.entity.User;
 import com.vutran.expensetracker.modules.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
-
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -26,26 +25,27 @@ public class TransactionService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
 
-    // 1. TẠO GIAO DỊCH MỚI
+    // 1. CREATE A NEW TRANSACTION
     public TransactionResponse createTransaction(TransactionRequest request) {
-        // Lấy email người dùng đang đăng nhập từ Token
+
+        // Extract the authenticated user's email from the security context
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // Tìm User trong DB
+        // Retrieve the user entity from the database
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy User!"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Tìm Category dựa trên ID mà client gửi lên
+        // Retrieve the category entity based on the provided identifier
         Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy Category!"));
+                .orElseThrow(() -> new RuntimeException("Category not found"));
 
-        // BẢO MẬT: Kiểm tra xem Category này có ĐÚNG LÀ CỦA USER ĐANG ĐĂNG NHẬP KHÔNG?
-        // Nếu ID của user tạo category KHÁC VỚI ID của user đang đăng nhập -> Chặn ngay!
+        // SECURITY CHECK: Authorization validation to prevent IDOR vulnerabilities.
+        // Deny access if the requested category belongs to a different user profile.
         if (!category.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Lỗi bảo mật: Bạn không có quyền sử dụng Category của người khác!");
+            throw new RuntimeException("Authorization Error: You do not have permission to utilize this category");
         }
 
-        // Nếu qua được bước bảo mật, tiến hành tạo Entity Transaction
+        // Upon successful authorization, construct the Transaction entity
         Transaction transaction = Transaction.builder()
                 .amount(request.getAmount())
                 .description(request.getDescription())
@@ -54,50 +54,52 @@ public class TransactionService {
                 .category(category)
                 .build();
 
-        // Lưu xuống Database
+        // Persist the transaction entity to the database
         Transaction savedTransaction = transactionRepository.save(transaction);
 
-        // Map sang DTO để trả về cho Client
+        // Map the persisted entity to a Data Transfer Object (DTO) for the client response
         return mapToResponse(savedTransaction);
     }
 
-    // 2. LẤY DANH SÁCH GIAO DỊCH (SẮP XẾP MỚI NHẤT LÊN ĐẦU)
+    // 2. RETRIEVE ALL TRANSACTIONS (ORDERED BY MOST RECENT)
     public List<TransactionResponse> getAllTransactionsByUser() {
+        // Extract the authenticated user's email
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
+        // Retrieve, map, and collect the transactions into a list
         return transactionRepository.findByUserEmailOrderByTransactionDateDesc(email)
                 .stream()
-                .map(this::mapToResponse) // Gọi hàm phụ ở dưới cho gọn code
+                .map(this::mapToResponse) // Delegate to the helper method for entity-to-DTO mapping
                 .collect(Collectors.toList());
     }
     
-    // 3. XÓA GIAO DỊCH
+    // 3. DELETE A TRANSACTION
     public void deleteTransaction(UUID id) {
-        // Lấy email người dùng đang đăng nhập
+        // Extract the authenticated user's email
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // 1. Tìm giao dịch xem có tồn tại không
+        // 1. Verify the existence of the transaction record
         Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Giao dịch không tồn tại!"));
+                .orElseThrow(() -> new RuntimeException("Transaction not found."));
 
-        // 2. BẢO MẬT: Kiểm tra xem giao dịch này có thuộc về người dùng đang đăng nhập không
+        // 2. SECURITY CHECK: Authorize the deletion by verifying ownership of the transaction
         if (!transaction.getUser().getEmail().equals(email)) {
-            throw new RuntimeException("Bạn không có quyền xóa giao dịch của người khác!");
+            throw new RuntimeException("Authorization Error: You do not have permission to delete this transaction.");
         }
 
-        // 3. Nếu mọi thứ ổn, tiến hành xóa
+        // 3. Proceed with deletion upon successful authorization
         transactionRepository.delete(transaction);
     }
 
-    // Hàm phụ: Chuyển Entity thành Response DTO
+    // Helper Method: Map a Transaction entity to a TransactionResponse DTO
     private TransactionResponse mapToResponse(Transaction transaction) {
         return TransactionResponse.builder()
                 .id(transaction.getId())
                 .amount(transaction.getAmount())
                 .description(transaction.getDescription())
                 .transactionDate(transaction.getTransactionDate())
-                .categoryName(transaction.getCategory().getName()) // Lấy tên Category
-                .categoryType(transaction.getCategory().getType()) // Lấy loại (INCOME/EXPENSE)
+                .categoryName(transaction.getCategory().getName()) // Extract category name
+                .categoryType(transaction.getCategory().getType()) // Extract category type (INCOME/EXPENSE)
                 .build();
     }
 }

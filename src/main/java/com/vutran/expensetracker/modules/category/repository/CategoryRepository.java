@@ -6,6 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface CategoryRepository extends JpaRepository<Category, UUID> {
-    // Spring sẽ tự tạo câu SQL: SELECT * FROM categories WHERE user.email = ?
+    // Spring will automatically generate the SQL query: SELECT * FROM categories WHERE user.email = ?
     List<Category> findByUserEmail(String email);
 }

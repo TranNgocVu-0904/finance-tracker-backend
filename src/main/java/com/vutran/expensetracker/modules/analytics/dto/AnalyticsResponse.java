@@ -14,5 +14,5 @@ import java.math.BigDecimal;
 public class AnalyticsResponse {
     private BigDecimal totalIncome;
     private BigDecimal totalExpense;
-    private BigDecimal balance; // Số dư = Thu - Chi
+    private BigDecimal balance; // Balance = Income - Expenses
 }
