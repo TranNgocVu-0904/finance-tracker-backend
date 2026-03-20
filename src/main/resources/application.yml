@@ -1,0 +1,68 @@
+spring:
+  application:
+    name: expensetracker
+  
+  # 1. CẤU HÌNH DATABASE (POSTGRESQL)
+  datasource:
+    # Nếu chạy Docker sẽ lấy SPRING_DATASOURCE_URL, nếu chạy ở máy IntelliJ sẽ lấy localhost
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/expense_tracker_db}
+    username: ${SPRING_DATASOURCE_USERNAME:expensetracker}
+    password: ${SPRING_DATASOURCE_PASSWORD:secretpassword}
+    driver-class-name: org.postgresql.Driver
+
+    hikari:
+      # Cho phép số lượng kết nối tối thiểu về bằng 0 (để Neon có thể "đi ngủ")
+      minimum-idle: 0
+      # Giới hạn tối đa số kết nối (với dự án cá nhân, 2-5 là quá đủ)
+      maximum-pool-size: 5
+      # Thời gian chờ (ms) trước khi đóng một kết nối không dùng đến (1 phút)
+      idle-timeout: 60000
+      # Thời gian sống tối đa của một kết nối (30 phút)
+      max-lifetime: 1800000
+      # Thời gian chờ tối đa để lấy một kết nối từ pool (30 giây)
+      connection-timeout: 30000
+
+  # 2. CẤU HÌNH JPA / HIBERNATE
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true 
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # 3. CẤU HÌNH GỬI EMAIL
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${SPRING_MAIL_USERNAME:inancetracker.support@gmail.com}
+    # TUYỆT ĐỐI KHÔNG để mật khẩu thật ở đây. Mật khẩu thật sẽ được Docker kéo từ file .env vào
+    password: ${SPRING_MAIL_PASSWORD} 
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# 4. CẤU HÌNH LOGGING ĐỂ DEBUG SQL
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql:
+              BasicBinder: trace
+
+# 5. CẤU HÌNH BẢO MẬT JWT
+app:
+  jwt:
+    # Key rác để test ở Local. Key xịn nằm trong file .env
+    secret: ${JWT_SECRET:DayLaKeyRacDungDeTestLocalKhongDungChoProductionDuocDau}
+    expirationMs: 86400000
+
+# 6. CỔNG CHẠY SERVER
+server:
+  port: 8081

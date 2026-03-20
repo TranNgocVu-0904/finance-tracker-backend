@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database Server
+  postgres_db:
+    image: postgres:15-alpine
+    container_name: expense_tracker_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data # Lưu trữ dữ liệu vật lý xuống máy host
+    networks:
+      - expense_network
+
+  # 2. pgAdmin (Công cụ UI để quản lý Database tiện lợi)
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: expense_tracker_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80" # Truy cập pgAdmin qua localhost:5050
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin # ĐÃ THÊM LẠI: Tránh mất data pgAdmin
+    depends_on:
+      - postgres_db
+    networks:
+      - expense_network
+
+  # 3. Spring Boot Backend
+  backend:
+    build: .
+    container_name: expense_tracker_backend
+    ports:
+      - "8080:8080" # ĐÃ THÊM LẠI: Mở cửa cho Frontend gọi API
+    depends_on:
+      - postgres_db # ĐÃ THÊM LẠI: Bắt Backend đợi DB tỉnh dậy mới được chạy
+    networks:
+      - expense_network # ĐÃ THÊM LẠI: Cho phép Backend kết nối vào DB
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
+
+# Khai báo Volumes để đảm bảo data không bị mất khi xóa container
+volumes:
+  pgdata:
+  pgadmin_data:
+
+# Khai báo Network để các container có thể "nhìn thấy" và gọi nhau
+networks:
+  expense_network:
+    driver: bridge
