@@ -6,20 +6,27 @@
 
 ![Coverage](.github/badges/jacoco.svg)
 ![Branches](.github/badges/branches.svg)
- 
+
 ## 🧠 Project Overview
+
 **Expense Tracker** is a website for personal finance management. It allows users to track detailed transactions, categorize expenses, and evaluate their income and expenditure based on this information. The web app was built with a focus on **security, scalability, and ease of deployment**, this application is ideal for individuals who want to take control of their financial data.
 
+## 🔗 Frontend Github Link
+
+This is a link to the project's frontend on Github:
+[Finance Tracker Frontend Github](https://github.com/TranNgocVu-0904/finance-tracker-frontend.git)
+
 ## 🛠️ Tech Stack
+
 This project leverages technologies widely used in the Java programming language:
 
 * **Core Framework:** [Spring Boot 3.5.11](https://spring.io/projects/spring-boot)
 
-* **Language:** [Java 21](https://openjdk.org/projects/jdk/21/) 
+* **Language:** [Java 21](https://openjdk.org/projects/jdk/21/)
 
 * **Security:** [Spring Security](https://spring.io/projects/spring-security) with [Stateless JWT](https://github.com/jwtk/jjwt) (jjwt 0.11.5)
 
-* **Database:** [PostgreSQL 16](https://www.postgresql.org/) 
+* **Database:** [PostgreSQL 16](https://www.postgresql.org/)
 
 * **ORM / Persistence:** [Hibernate 6](https://hibernate.org/) (via [Spring Data JPA](https://spring.io/projects/spring-data-jpa))
 
@@ -34,6 +41,7 @@ This project leverages technologies widely used in the Java programming language
 * **Infrastructure:** [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/) for containerization
 
 ## 🔑 Key Features
+
 * **Stateless Authentication:** Secure JWT-based login and registration system with automatic filtering via `OncePerRequestFilter`.
 
 * **Comprehensive Transaction CRUD:** Fully manage income and expenses with categorical metadata and personal information ownership verification.
@@ -47,15 +55,16 @@ This project leverages technologies widely used in the Java programming language
 * **Quality Control:** Strict JaCoCo configurations to exclude DTOs, Entities, and Configs, ensuring accurate logic coverage.
 
 ## 🚧 System Architecture
+
 The application follows a clean **Layered Architecture** pattern to ensure modularity and ease of maintenance:
 
-1.  **Security Layer:** Intercepts requests for JWT validation  and CORS policy enforcement.
+1. **Security Layer:** Intercepts requests for JWT validation  and CORS policy enforcement.
 
-2.  **Controller Layer:** Defines REST endpoints for client-server communication.
+2. **Controller Layer:** Defines REST endpoints for client-server communication.
 
-3.  **Service Layer:** Executes core business logic, including financial aggregations and authorization checks.
+3. **Service Layer:** Executes core business logic, including financial aggregations and authorization checks.
 
-4.  **Persistence Layer:** Manages database interaction via Spring Data JPA and Hikari connection pooling.
+4. **Persistence Layer:** Manages database interaction via Spring Data JPA and Hikari connection pooling.
 
 ## ☁️ Infrastructure & Deployment
 
@@ -82,41 +91,48 @@ The backend is containerized and hosted on the [**Render**](https://render.com) 
 ## 🚀 Getting Started
 
 ### 🔧 Quick Start with [Docker](https://www.docker.com)
+
 To launch the entire infrastructure (Backend, Database, and pgAdmin) locally:
 
-1.  **Clone the repository:**
+1. **Clone the repository:**
+
     ```bash
     git clone https://github.com/TranNgocVu-0904/finance-tracker-backend.git
     
     cd finance-tracker-backend
     ```
 
-2.  **Configure Environment Variables:** 
+2. **Configure Environment Variables:**
 
     Create a `.env` file from the provided example:
+
     ```bash
     cp .env.example .env
     ```
 
-3.  **Run the application:**
+3. **Run the application:**
+
     ```bash
     docker-compose up -d --build
     ```
+
 4. **Verify the deployment:**
 
     ```bash
     docker-compose ps
     ```
+
 ⭐ **Note:** If you want to stop running the docker, just run:
 
 ```bash
 docker-compose down
 ```
+
 or pausing:
+
 ```bash
 docker-compose stop
 ```
-
 
 ## 🔐 Environment Variables
 
@@ -130,9 +146,7 @@ To run the application successfully, ensure the following variables are configur
 | `JWT_SECRET`                  | 256-bit secret key for signing tokens    |
 | `SPRING_MAIL_USERNAME`        | SMTP server username (Support Email)     |
 | `SPRING_MAIL_PASSWORD`        | SMTP app-specific password               |
-| `FRONTEND_URL`                | http://127.0.0.1:5500 (local host)       |
-
-
+| `FRONTEND_URL`                | <http://127.0.0.1:5500> (local host)     |
 
 ## 🔖 API Documentation (Swagger/OpenAPI)
 
@@ -187,15 +201,16 @@ The documentation provides information about request/response schemas, authentic
 └── pom.xml
 ```
 
-
 ## 🧪 Running Tests
+
 To execute the unit test and generate the coverage result, run:
 
-1.  **Start the database separately on Docker:**
+1. **Start the database separately on Docker:**
 
     ```bash
     docker-compose up -d postgres_db
     ```
+
     *(Chỉ bật DB thôi, không cần bật service backend trên Docker).*
 
 2. **Then, run:**
@@ -206,11 +221,10 @@ To execute the unit test and generate the coverage result, run:
 
  > The JaCoCo report will be generated at: `target/site/jacoco/index.html`
 
-3. **View JaCoCo results:**
+1. **View JaCoCo results:**
 
 After testing, open the file `target/site/jacoco/index.html` in your folder to see the coverage.
 
+## 🎉 Database ERD (Entity Relationship Diagram)
 
-## 4. Database ERD (Entity Relationship Diagram)
 ![Database ERD](ERD.png)
-
