@@ -40,7 +40,7 @@ This project leverages technologies widely used in the Java programming language
 
 * **Infrastructure:** [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/) for containerization
 
-## 🔑 Key Features
+## 🎉 Key Features
 
 * **Stateless Authentication:** Secure JWT-based login and registration system with automatic filtering via `OncePerRequestFilter`.
 
