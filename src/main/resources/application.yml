@@ -2,42 +2,45 @@ spring:
   application:
     name: expensetracker
   
-  # 1. CẤU HÌNH DATABASE (POSTGRESQL)
+  # 1. DATABASE PERSISTENCE CONFIGURATION (POSTGRESQL)
   datasource:
-    # Nếu chạy Docker sẽ lấy SPRING_DATASOURCE_URL, nếu chạy ở máy IntelliJ sẽ lấy localhost
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/expense_tracker_db}
     username: ${SPRING_DATASOURCE_USERNAME:expensetracker}
     password: ${SPRING_DATASOURCE_PASSWORD:secretpassword}
     driver-class-name: org.postgresql.Driver
 
+    # HikariCP Connection Pool Settings
     hikari:
-      # Cho phép số lượng kết nối tối thiểu về bằng 0 (để Neon có thể "đi ngủ")
+      # Allows the pool to shrink to zero
       minimum-idle: 0
-      # Giới hạn tối đa số kết nối (với dự án cá nhân, 2-5 là quá đủ)
+      # Maximum concurrent connections
       maximum-pool-size: 5
-      # Thời gian chờ (ms) trước khi đóng một kết nối không dùng đến (1 phút)
+      # Maximum time (ms) a connection can sit idle before being released
       idle-timeout: 60000
-      # Thời gian sống tối đa của một kết nối (30 phút)
+      # Maximum lifetime (ms) of a connection in the pool
       max-lifetime: 1800000
-      # Thời gian chờ tối đa để lấy một kết nối từ pool (30 giây)
+      # Timeout (ms) to wait for a connection from the pool before throwing an exception
       connection-timeout: 30000
 
-  # 2. CẤU HÌNH JPA / HIBERNATE
+  # 2. JPA & HIBERNATE ORM SETTINGS
   jpa:
     hibernate:
+      # Automatically validates and updates the database schema on startup
       ddl-auto: update
     show-sql: true 
     properties:
       hibernate:
+        # Prettifies the SQL output in the console
         format_sql: true
+        # Explicitly defines the dialect for PostgreSQL compatibility
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  # 3. CẤU HÌNH GỬI EMAIL
+  # 3. SMTP MAIL SERVICE CONFIGURATION
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${SPRING_MAIL_USERNAME:inancetracker.support@gmail.com}
-    # TUYỆT ĐỐI KHÔNG để mật khẩu thật ở đây. Mật khẩu thật sẽ được Docker kéo từ file .env vào
+    username: ${SPRING_MAIL_USERNAME:financetracker.support@gmail.com}
+    # Real password must be provided via Environment Variables (.env)
     password: ${SPRING_MAIL_PASSWORD} 
     properties:
       mail:
@@ -46,7 +49,14 @@ spring:
           starttls:
             enable: true
 
-# 4. CẤU HÌNH LOGGING ĐỂ DEBUG SQL
+# 4. API DOCUMENTATION (SWAGGER/OPENAPI)
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+# 5. LOGGING CONFIGURATION FOR SQL DEBUGGING
 logging:
   level:
     org:
@@ -54,15 +64,17 @@ logging:
         type:
           descriptor:
             sql:
+              # Logs detailed SQL parameter binding (useful for development)
               BasicBinder: trace
 
-# 5. CẤU HÌNH BẢO MẬT JWT
+# 6. JWT SECURITY CONTEXT
 app:
   jwt:
-    # Key rác để test ở Local. Key xịn nằm trong file .env
-    secret: ${JWT_SECRET:DayLaKeyRacDungDeTestLocalKhongDungChoProductionDuocDau}
+    # Default secret for local development.
+    secret: ${JWT_SECRET:DefaultDevelopmentSecretKeyMinimum256BitsForProductionSafety}
+    # Token validity period (24 hours)
     expirationMs: 86400000
 
-# 6. CỔNG CHẠY SERVER
+# 7. SERVER PORT
 server:
   port: 8081

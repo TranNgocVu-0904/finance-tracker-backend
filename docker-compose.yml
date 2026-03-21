@@ -12,11 +12,11 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data # Lưu trữ dữ liệu vật lý xuống máy host
+      - pgdata:/var/lib/postgresql/data # Store data on a host machine.
     networks:
       - expense_network
 
-  # 2. pgAdmin (Công cụ UI để quản lý Database tiện lợi)
+  # 2. pgAdmin (UI tool for database management)
   pgadmin:
     image: dpage/pgadmin4
     container_name: expense_tracker_pgadmin
@@ -24,9 +24,9 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "5050:80" # Truy cập pgAdmin qua localhost:5050
+      - "5050:80" # Access pgAdmin via localhost:5050
     volumes:
-      - pgadmin_data:/var/lib/pgadmin # ĐÃ THÊM LẠI: Tránh mất data pgAdmin
+      - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - postgres_db
     networks:
@@ -37,11 +37,11 @@ services:
     build: .
     container_name: expense_tracker_backend
     ports:
-      - "8080:8080" # ĐÃ THÊM LẠI: Mở cửa cho Frontend gọi API
+      - "8080:8080" # Open the port for the frontend to call the API.
     depends_on:
-      - postgres_db # ĐÃ THÊM LẠI: Bắt Backend đợi DB tỉnh dậy mới được chạy
+      - postgres_db # Make the backend wait for the database to wake up before running.
     networks:
-      - expense_network # ĐÃ THÊM LẠI: Cho phép Backend kết nối vào DB
+      - expense_network # Allow Backend to connect to DB
     environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
@@ -50,12 +50,12 @@ services:
       SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
       SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
 
-# Khai báo Volumes để đảm bảo data không bị mất khi xóa container
+# Declare Volumes to ensure data is not lost when deleting the container.
 volumes:
   pgdata:
   pgadmin_data:
 
-# Khai báo Network để các container có thể "nhìn thấy" và gọi nhau
+# Declare a Network so that containers can call each other.
 networks:
   expense_network:
     driver: bridge
