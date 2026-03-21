@@ -211,7 +211,7 @@ To execute the unit test and generate the coverage result, run:
     docker-compose up -d postgres_db
     ```
 
-    *(Chỉ bật DB thôi, không cần bật service backend trên Docker).*
+    *(Just enable the database; there's no need to enable the backend service on Docker)*
 
 2. **Then, run:**
 
@@ -221,7 +221,7 @@ To execute the unit test and generate the coverage result, run:
 
  > The JaCoCo report will be generated at: `target/site/jacoco/index.html`
 
-1. **View JaCoCo results:**
+**View JaCoCo results:**
 
 After testing, open the file `target/site/jacoco/index.html` in your folder to see the coverage.
 
