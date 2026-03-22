@@ -8,11 +8,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
 
-// Annotation này biến class thành "Trạm kiểm soát" bắt mọi lỗi văng ra từ Controller
+//This annotation turns the class into a checkpoint that catches all errors thrown from the Controller.
 @RestControllerAdvice 
 public class GlobalExceptionHandler {
 
-    // 1. Bắt các lỗi do logic nghiệp vụ của chúng ta tự ném ra (RuntimeException)
+    // 1. Catch errors thrown by business logic (RuntimeException)
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
         ErrorResponse error = ErrorResponse.builder()
@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // 2. Bắt TẤT CẢ các lỗi hệ thống không lường trước được (Exception chung)
+    // 2. Catch all unforeseen system errors (General Exceptions)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {
         ErrorResponse error = ErrorResponse.builder()
@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(MethodArgumentNotValidException.class)
 public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
-    // Lấy câu thông báo lỗi đầu tiên mà nó tìm thấy
+    // Get the first error message that it couldn't find
     String errorMessage = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
 
     ErrorResponse error = ErrorResponse.builder()
