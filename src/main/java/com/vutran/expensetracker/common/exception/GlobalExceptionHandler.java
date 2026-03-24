@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value()) // 400 Bad Request
-                .message(ex.getMessage()) // Lấy đúng câu chữ mình đã throw ("Không tìm thấy Category!")
+                .message(ex.getMessage()) // Using the exact error ("Category not found!")
                 .build();
         
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
